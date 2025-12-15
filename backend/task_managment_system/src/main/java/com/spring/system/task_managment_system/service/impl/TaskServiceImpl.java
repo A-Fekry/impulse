@@ -1,13 +1,20 @@
 package com.spring.system.task_managment_system.service.impl;
 
+import com.spring.system.task_managment_system.dto.PersonDto;
 import com.spring.system.task_managment_system.dto.ResponseSub;
 import com.spring.system.task_managment_system.dto.TaskDto;
+import com.spring.system.task_managment_system.mapper.PersonMapper;
 import com.spring.system.task_managment_system.mapper.SubTaaskMapper;
 import com.spring.system.task_managment_system.mapper.TaskMapper;
+import com.spring.system.task_managment_system.models.SubTask;
 import com.spring.system.task_managment_system.models.Task;
+import com.spring.system.task_managment_system.repo.SubTaskRepo;
 import com.spring.system.task_managment_system.repo.TaskRepo;
 import com.spring.system.task_managment_system.service.TaskService;
+import com.spring.system.task_managment_system.service.auth.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -18,6 +25,12 @@ public class TaskServiceImpl implements TaskService {
 
     @Autowired
     private TaskRepo taskRepo;
+
+    @Autowired
+    private ClientService clientService;
+
+    @Autowired
+    private SubTaskRepo subTaskRepo;
     @Override
     public TaskDto addTask(TaskDto taskDto) throws RuntimeException {
         if(taskDto.getId() != null) {
@@ -31,8 +44,13 @@ public class TaskServiceImpl implements TaskService {
         if(taskDto.getEndTime().isBefore(taskDto.getStartTime())) {
             throw new RuntimeException("startTime.must.be.before.endTime");
         }
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        PersonDto client = (PersonDto) clientService.getClientByEmail((String) auth.getName());
         taskDto.setDone(false);
-        return TaskMapper.INSTANCE.toDto(taskRepo.save(TaskMapper.INSTANCE.toEntity(taskDto)));
+        Task task = new Task();
+        task = TaskMapper.INSTANCE.toEntity(taskDto);
+        task.setPerson(PersonMapper.INSTANCE.toEntity(client));
+        return TaskMapper.INSTANCE.toDto(taskRepo.save(task));
     }
 
     @Override
@@ -52,8 +70,13 @@ public class TaskServiceImpl implements TaskService {
         if(taskDto.getEndTime().isBefore(taskDto.getStartTime())) {
             throw new RuntimeException("startTime.must.be.before.endTime");
         }
-
-        return TaskMapper.INSTANCE.toDto(taskRepo.save(TaskMapper.INSTANCE.toEntity(taskDto)));
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        PersonDto client = (PersonDto) clientService.getClientByEmail((String) auth.getName());
+        taskDto.setDone(false);
+        Task task = new Task();
+        task = TaskMapper.INSTANCE.toEntity(taskDto);
+        task.setPerson(PersonMapper.INSTANCE.toEntity(client));
+        return TaskMapper.INSTANCE.toDto(taskRepo.save(task));
     }
 
     @Override
@@ -89,12 +112,19 @@ public class TaskServiceImpl implements TaskService {
         if(taskDto.getEndTime().isBefore(taskDto.getStartTime())) {
             throw new RuntimeException("startTime.must.be.before.endTime");
         }
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        PersonDto client = (PersonDto) clientService.getClientByEmail((String) auth.getName());
         taskDto.setDone(false);
-        Task task = TaskMapper.INSTANCE.toEntity(taskDto);
-        for (int i = 0; i < responseSub.getSubTasks().size(); i++) {
-            task.getSubTasks().set(i, SubTaaskMapper.INSTANCE.toEntity(responseSub.getSubTasks().get(i)));
-        }
+        Task task = new Task();
+        task = TaskMapper.INSTANCE.toEntity(taskDto);
+        task.setPerson(PersonMapper.INSTANCE.toEntity(client));
         Task result = taskRepo.save(task);
+        for (int i = 0; i < responseSub.getSubTasks().size(); i++) {
+            SubTask subTask = new SubTask();
+            subTask = SubTaaskMapper.INSTANCE.toEntity(responseSub.getSubTasks().get(i));
+            subTask.setTask(task);
+            result.getSubTasks().add(subTask);
+        }
         ResponseSub responseSubRes = new ResponseSub();
         responseSubRes.setSubTasks(SubTaaskMapper.INSTANCE.toDto(result.getSubTasks()));
         responseSubRes.setTask(TaskMapper.INSTANCE.toDto(result));

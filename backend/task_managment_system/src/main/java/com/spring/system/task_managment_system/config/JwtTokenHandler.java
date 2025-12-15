@@ -51,7 +51,7 @@ public class JwtTokenHandler {
         Instant instant = issuesDate.toInstant().plus(expiration);
         Date dateOfExpired = Date.from(instant); // calculate the expired date starting from issueDate
 
-        return jwtBuilder.setSubject(person.getName())
+        return jwtBuilder.setSubject(person.getEmail())
                 .setIssuedAt(issuesDate)
                 .setExpiration(dateOfExpired)
                 .claim("roles", clientService.getRoles(person.getEmail())).compact();

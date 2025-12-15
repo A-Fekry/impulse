@@ -9,6 +9,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -51,8 +52,14 @@ public class Task {
     private Integer points;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PERSON_ID", nullable = false)
     private Person person;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private List<SubTask> subTasks;
+    @OneToMany(
+            mappedBy = "task",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.EAGER
+    )
+    private List<SubTask> subTasks = new ArrayList<>();
 }

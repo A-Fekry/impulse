@@ -42,8 +42,6 @@ public class SecurityConfig {
                         // Public authentication endpoints
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/create-account").permitAll()
-
-                        // Swagger/OpenAPI endpoints - allow all HTTP methods
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/swagger-ui.html").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
@@ -53,6 +51,11 @@ public class SecurityConfig {
                         .requestMatchers("/api-docs/**").permitAll()
 
                         // All other requests require authentication
+                        .requestMatchers(HttpMethod.POST,"/task").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET,"/task").hasRole("USER")
+                        .requestMatchers(HttpMethod.DELETE,"/task").hasRole("USER")
+                        .requestMatchers(HttpMethod.POST,"/sub-task").hasRole("USER")
+                        .requestMatchers(HttpMethod.DELETE,"/sub-task").hasRole("USER")
                         .anyRequest().authenticated()
                 )
 

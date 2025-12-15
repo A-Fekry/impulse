@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -35,6 +36,11 @@ public class Person {
     )
     private List<Roles> roles;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    private List<Task> tasks;
+    @OneToMany(
+            mappedBy = "person",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.EAGER
+    )
+    private List<Task> tasks = new ArrayList<>();
 }
