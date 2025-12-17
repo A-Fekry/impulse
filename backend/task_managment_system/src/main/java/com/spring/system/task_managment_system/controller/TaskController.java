@@ -42,7 +42,7 @@ public class TaskController {
     }
 
     @GetMapping("/get-task/date/{date}")
-    ResponseEntity<List<TaskDto>> getTodayTasks(@PathVariable("date") LocalDate day) {
+    ResponseEntity<List<ResponseSub>> getTodayTasks(@PathVariable("date") LocalDate day) {
         return ResponseEntity.ok(taskService.getTaskByDate(day));
     }
 

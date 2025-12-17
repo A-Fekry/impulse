@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -13,5 +14,5 @@ import java.util.List;
 @NoArgsConstructor
 public class ResponseSub {
     private TaskDto task;
-    private List<SubTaskDto> subTasks;
+    private List<SubTaskDto> subTasks = new ArrayList<>();
 }

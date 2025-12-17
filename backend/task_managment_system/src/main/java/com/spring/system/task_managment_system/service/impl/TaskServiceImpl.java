@@ -18,6 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -85,8 +86,16 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<TaskDto> getTaskByDate(LocalDate date)  throws RuntimeException{
-        return TaskMapper.INSTANCE.toDto(taskRepo.findTaskByDay(date));
+    public List<ResponseSub> getTaskByDate(LocalDate date)  throws RuntimeException{
+        List<Task> tasks = taskRepo.findTaskByDay(date);
+        List<ResponseSub> responseSubs = new ArrayList<>();
+        for(Task task : tasks) {
+            ResponseSub responseSub = new ResponseSub();
+            responseSub.setTask(TaskMapper.INSTANCE.toDto(task));
+            responseSub.setSubTasks(SubTaaskMapper.INSTANCE.toDto(task.getSubTasks()));
+        }
+
+        return responseSubs;
     }
 
     @Override
@@ -133,11 +142,11 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public Integer countPoints() {
-        List<TaskDto> taskDtoList = getTaskByDate(LocalDate.now());
+        List<ResponseSub> taskDtoList = getTaskByDate(LocalDate.now());
         Integer count = 0;
-        for (TaskDto taskDto : taskDtoList) {
-            if(taskDto.isDone()){
-                count += taskDto.getPoints();
+        for (ResponseSub taskDto : taskDtoList) {
+            if(taskDto.getTask().isDone()){
+                count += taskDto.getTask().getPoints();
             }
         }
         return count;

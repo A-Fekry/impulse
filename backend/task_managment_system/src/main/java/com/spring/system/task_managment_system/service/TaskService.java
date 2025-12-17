@@ -11,7 +11,7 @@ public interface TaskService {
     TaskDto addTask(TaskDto taskDto) throws RuntimeException;
     TaskDto updateTask(TaskDto taskDto) throws RuntimeException;
     TaskDto getTaskById(int id);
-    List<TaskDto> getTaskByDate(LocalDate date) throws RuntimeException;
+    List<ResponseSub> getTaskByDate(LocalDate date) throws RuntimeException;
     void deleteTaskById(int id) throws RuntimeException;
     ResponseSub addBigTask(ResponseSub responseSub) throws RuntimeException;
     Integer countPoints();
