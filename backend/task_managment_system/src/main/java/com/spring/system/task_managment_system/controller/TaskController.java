@@ -26,7 +26,7 @@ public class TaskController {
     }
 
     @PostMapping("/add-big-task")
-    ResponseEntity<ResponseSub> addTask(@RequestBody @Validated ResponseSub taskDto) {
+    ResponseEntity<TaskDto> addBigTask(@RequestBody @Validated TaskDto taskDto) {
         return ResponseEntity.ok(taskService.addBigTask(taskDto));
     }
 
@@ -42,7 +42,7 @@ public class TaskController {
     }
 
     @GetMapping("/get-task/date/{date}")
-    ResponseEntity<List<ResponseSub>> getTodayTasks(@PathVariable("date") LocalDate day) {
+    ResponseEntity<List<TaskDto>> getTodayTasks(@PathVariable("date") LocalDate day) {
         return ResponseEntity.ok(taskService.getTaskByDate(day));
     }
 

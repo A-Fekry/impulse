@@ -1,5 +1,6 @@
 package com.spring.system.task_managment_system.service;
 
+import com.spring.system.task_managment_system.dto.PersonDto;
 import com.spring.system.task_managment_system.dto.ResponseSub;
 import com.spring.system.task_managment_system.dto.TaskDto;
 
@@ -11,8 +12,9 @@ public interface TaskService {
     TaskDto addTask(TaskDto taskDto) throws RuntimeException;
     TaskDto updateTask(TaskDto taskDto) throws RuntimeException;
     TaskDto getTaskById(int id);
-    List<ResponseSub> getTaskByDate(LocalDate date) throws RuntimeException;
+    List<TaskDto> getTaskByDate(LocalDate date) throws RuntimeException;
     void deleteTaskById(int id) throws RuntimeException;
-    ResponseSub addBigTask(ResponseSub responseSub) throws RuntimeException;
+    TaskDto addBigTask(TaskDto responseSub) throws RuntimeException;
     Integer countPoints();
+    boolean checkTime(TaskDto taskDto , PersonDto personDto) throws RuntimeException;
 }

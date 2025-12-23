@@ -47,6 +47,7 @@ public class TaskServiceImpl implements TaskService {
         }
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         PersonDto client = (PersonDto) clientService.getClientByEmail((String) auth.getName());
+        //checkTime(taskDto, client);
         taskDto.setDone(false);
         Task task = new Task();
         task = TaskMapper.INSTANCE.toEntity(taskDto);
@@ -86,13 +87,16 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<ResponseSub> getTaskByDate(LocalDate date)  throws RuntimeException{
+    public List<TaskDto> getTaskByDate(LocalDate date)  throws RuntimeException{
+        //Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        //PersonDto client = (PersonDto) clientService.getClientByEmail((String) auth.getName());
         List<Task> tasks = taskRepo.findTaskByDay(date);
-        List<ResponseSub> responseSubs = new ArrayList<>();
+        List<TaskDto> responseSubs = new ArrayList<>();
         for(Task task : tasks) {
-            ResponseSub responseSub = new ResponseSub();
-            responseSub.setTask(TaskMapper.INSTANCE.toDto(task));
+            TaskDto responseSub = new TaskDto();
+            responseSub = TaskMapper.INSTANCE.toDto(task);
             responseSub.setSubTasks(SubTaaskMapper.INSTANCE.toDto(task.getSubTasks()));
+            responseSubs.add(responseSub);
         }
 
         return responseSubs;
@@ -108,8 +112,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public ResponseSub addBigTask(ResponseSub responseSub) throws RuntimeException {
-        TaskDto taskDto = responseSub.getTask();
+    public TaskDto addBigTask(TaskDto taskDto) throws RuntimeException {
         if(taskDto.getId() != null) {
             throw new RuntimeException("invalid.id");
         }
@@ -123,32 +126,48 @@ public class TaskServiceImpl implements TaskService {
         }
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         PersonDto client = (PersonDto) clientService.getClientByEmail((String) auth.getName());
+        //checkTime(taskDto, client);
         taskDto.setDone(false);
         Task task = new Task();
         task = TaskMapper.INSTANCE.toEntity(taskDto);
         task.setPerson(PersonMapper.INSTANCE.toEntity(client));
         Task result = taskRepo.save(task);
-        for (int i = 0; i < responseSub.getSubTasks().size(); i++) {
+        for (int i = 0; i < taskDto.getSubTasks().size(); i++) {
             SubTask subTask = new SubTask();
-            subTask = SubTaaskMapper.INSTANCE.toEntity(responseSub.getSubTasks().get(i));
+            subTask = SubTaaskMapper.INSTANCE.toEntity(taskDto.getSubTasks().get(i));
             subTask.setTask(task);
             result.getSubTasks().add(subTask);
         }
-        ResponseSub responseSubRes = new ResponseSub();
+        TaskDto responseSubRes = new TaskDto();
+        responseSubRes = TaskMapper.INSTANCE.toDto(result);
         responseSubRes.setSubTasks(SubTaaskMapper.INSTANCE.toDto(result.getSubTasks()));
-        responseSubRes.setTask(TaskMapper.INSTANCE.toDto(result));
         return responseSubRes;
     }
 
     @Override
     public Integer countPoints() {
-        List<ResponseSub> taskDtoList = getTaskByDate(LocalDate.now());
+        List<TaskDto> taskDtoList = getTaskByDate(LocalDate.now());
         Integer count = 0;
-        for (ResponseSub taskDto : taskDtoList) {
-            if(taskDto.getTask().isDone()){
-                count += taskDto.getTask().getPoints();
+        for (TaskDto taskDto : taskDtoList) {
+            if(taskDto.isDone()){
+                count += taskDto.getPoints();
             }
         }
         return count;
+    }
+
+    @Override
+    public boolean checkTime(TaskDto taskDto , PersonDto client) throws RuntimeException {
+        boolean result = true;
+        List<TaskDto> tasks = TaskMapper.INSTANCE.toDto(taskRepo.findTaskByDayAndPerson(taskDto.getDay() , PersonMapper.INSTANCE.toEntity(client)));
+        for(TaskDto taskDto2 : tasks) {
+            if(taskDto.getStartTime().isBefore(taskDto2.getEndTime()) &&
+                    taskDto.getEndTime().isAfter(taskDto2.getStartTime())){
+                result = false;
+                throw new RuntimeException("time.conflit");
+            }
+        }
+
+        return result;
     }
 }

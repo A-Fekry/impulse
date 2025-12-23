@@ -7,6 +7,9 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -24,5 +27,7 @@ public class TaskDto {
     private LocalTime startTime;
     private LocalTime endTime;
     private Integer points;
+    private String type;
 
+    List<SubTaskDto> subTasks = new ArrayList<>();
 }

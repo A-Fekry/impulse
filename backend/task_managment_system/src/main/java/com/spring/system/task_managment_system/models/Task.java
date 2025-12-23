@@ -50,6 +50,8 @@ public class Task {
     @Min(0)
     @Max(100)
     private Integer points;
+    private String type;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PERSON_ID", nullable = false)
