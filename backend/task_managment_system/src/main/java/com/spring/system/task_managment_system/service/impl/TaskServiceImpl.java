@@ -74,7 +74,6 @@ public class TaskServiceImpl implements TaskService {
         }
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         PersonDto client = (PersonDto) clientService.getClientByEmail((String) auth.getName());
-        taskDto.setDone(false);
         Task task = new Task();
         task = TaskMapper.INSTANCE.toEntity(taskDto);
         task.setPerson(PersonMapper.INSTANCE.toEntity(client));
